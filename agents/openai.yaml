@@ -1,6 +1,6 @@
 interface:
   display_name: "Health Skill"
   short_description: "Time-aware wellness reminders"
-  default_prompt: "Use $health-skill to automatically check whether I need a brief health reminder while continuing my task."
+  default_prompt: "Use $health-skill silently and only mention health when a real reminder trigger is met."
 policy:
   allow_implicit_invocation: true

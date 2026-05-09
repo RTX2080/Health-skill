@@ -1,51 +1,35 @@
 ---
 name: health-skill
-description: Automatic, non-disruptive wellness checks for Codex work sessions. Use implicitly at the start of every user request during AI-assisted work to silently check local time and known session context; only speak up when late-night, long-session, hydration, movement-break, eye-rest, sleep-hygiene, or urgent wellbeing conditions are met, then immediately continue the user's main task. Also use when the user explicitly asks for health-skill or non-medical wellbeing support.
+description: Lightweight automatic wellness guard for Codex work sessions. Use implicitly for silent local-time/session prechecks, especially during coding or long AI-assisted work; do not mention health unless a late-night, long-session, rest, hydration, or urgent wellbeing trigger is actually met. Also use when the user explicitly asks for health-skill or non-medical wellbeing support.
 ---
 
 # Health Skill
 
 ## Core Rule
 
-Help the user stay healthy while continuing the requested task. Run the health check automatically and silently at the start of each user request in an AI work session. Keep reminders brief, kind, and non-disruptive. Never turn the response into a lecture unless the user asks for detail.
+Stay silent unless a reminder trigger is met. When no trigger is met, output nothing about health and continue the user's task normally.
 
-## Quick Workflow
+## Lightweight Precheck
 
-1. At the start of each user request, check the current local time. Prefer running `scripts/health_check.py`; if tools are unavailable, use the environment's current date/time.
-2. Pass known session context to the script when reliable data exists:
-   - `--elapsed-minutes`: elapsed active conversation/work-session time.
-   - `--unfocused-minutes`: time away from the app, but only if a reliable app/browser signal is available.
-   - `--session-start`: ISO timestamp, when elapsed time is easier to compute from a start time.
-3. Do not invent focus state. If focus-away time is unavailable, omit it and use a softer long-session reminder only when the conversation itself has clearly lasted about an hour.
-4. If no reminder is needed, say nothing about health and continue the user's task normally.
-5. If a reminder is needed, write 1-2 short sentences and immediately continue the user's task.
-6. If the user asks not to receive health reminders, respect that preference for the current task unless there is an urgent safety concern.
+1. Prefer the environment's current local time when it is already available.
+2. Run `scripts/health_check.py --quiet` when checking reminder state. The script stores the first work timestamp in `~/.codex/health-skill/session_state.json`.
+3. If `now - session_started_at >= 60 minutes`, give one long-session reminder and let the script reset `session_started_at` to the current time.
+4. Load `references/reminder_templates.md` only after a reminder trigger is confirmed.
 
-## Reminder Triggers
+## Triggers
 
-Use these default thresholds unless the user configures different ones:
+- `22:30-23:59`: brief late-evening wrap-up reminder.
+- `00:00-01:59`: clearer late-night sleep reminder.
+- `02:00-04:59`: firm but kind severe-late-night reminder.
+- Stored work session `>= 60` minutes: movement, water, and eye-rest reminder. After this reminder, the script resets the stored start time to now.
+- Emergency-like symptoms: advise urgent medical help.
 
-- `22:30-23:59`: late evening. Suggest wrapping up, drinking water, and relaxing eyes/neck.
-- `00:00-01:59`: late night. More clearly encourage sleep soon and mention reduced attention.
-- `02:00-04:59`: severe late night. Strongly recommend stopping soon and resting.
-- Active session `>= 60` minutes with `unfocused-minutes < 5`: remind the user to stand up, drink water, and rest eyes.
-- Active session `>= 60` minutes with unknown focus data: use a gentler "if you have been here continuously" reminder.
+Avoid repeating a reminder more than once per natural work session unless the user asks for continuing reminders.
 
-Avoid repeating the same reminder more than once per natural work session unless the user explicitly asks for continuing reminders.
+## Output Style
 
-## Non-Disruptive Style
+If triggered, write 1-2 short sentences, then immediately continue the user's main task. Prefer Chinese when the user is speaking Chinese.
 
-Place the reminder as a small aside before a status update or before continuing the answer:
+If not triggered, say nothing about health.
 
-`现在已经有点晚了，先喝口水、活动一下肩颈。我继续帮你把这个问题处理完。`
-
-Keep the main answer focused on the user's task. Do not delay tool use, code edits, debugging, or requested explanations just to expand the health advice.
-
-## Safety Boundary
-
-This skill provides general wellbeing nudges, not medical diagnosis or treatment. If the user mentions chest pain, trouble breathing, fainting, severe pain, acute neurological symptoms, or any emergency-like condition, advise them to seek urgent medical help immediately and continue only if appropriate.
-
-## Resources
-
-- `scripts/health_check.py`: deterministic local-time and long-session decision helper.
-- `references/reminder_templates.md`: short reminder templates and tone guidance. Load it when writing reminders or customizing copy.
+This skill provides general wellbeing nudges, not medical diagnosis or treatment.

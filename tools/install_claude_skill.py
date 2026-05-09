@@ -62,7 +62,40 @@ def ensure_memory_import(memory_file: Path, import_line: str) -> None:
 
 
 def quoted_command(python_exe: Path, checker: Path) -> str:
-    return f'"{python_exe}" "{checker}" --quiet'
+    return f'"{python_exe}" "{checker}"'
+
+
+def ensure_hook_runner(runner_file: Path, install_dir: Path) -> None:
+    runner_file.parent.mkdir(parents=True, exist_ok=True)
+    checker = install_dir.expanduser().resolve() / "scripts" / "health_check.py"
+    runner_file.write_text(
+        f"""#!/usr/bin/env python3
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+
+checker = Path({str(checker)!r})
+if not checker.exists():
+    raise SystemExit(0)
+
+try:
+    result = subprocess.run(
+        [sys.executable, str(checker), "--quiet"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+except Exception:
+    raise SystemExit(0)
+
+if result.stdout:
+    sys.stdout.write(result.stdout)
+
+raise SystemExit(0)
+"""
+    )
 
 
 def ensure_user_prompt_hook(settings_file: Path, command: str) -> None:
@@ -75,6 +108,19 @@ def ensure_user_prompt_hook(settings_file: Path, command: str) -> None:
 
     hooks = settings.setdefault("hooks", {})
     submit_hooks = hooks.setdefault("UserPromptSubmit", [])
+    cleaned_submit_hooks = []
+    for entry in submit_hooks:
+        cleaned_hooks = [
+            hook
+            for hook in entry.get("hooks", [])
+            if "health-skill/scripts/health_check.py" not in hook.get("command", "")
+        ]
+        if cleaned_hooks:
+            new_entry = dict(entry)
+            new_entry["hooks"] = cleaned_hooks
+            cleaned_submit_hooks.append(new_entry)
+    submit_hooks[:] = cleaned_submit_hooks
+
     hook_entry = {"hooks": [{"type": "command", "command": command}]}
 
     for entry in submit_hooks:
@@ -135,6 +181,7 @@ def main() -> int:
     memory_file = home / "CLAUDE.md"
     settings_file = home / "settings.json"
     command_file = home / "commands" / "health-skill.md"
+    runner_file = home / "health-skill-hook.py"
 
     with tempfile.TemporaryDirectory(prefix="health-skill-install-") as tmp:
         repo_root = download_repo(args.ref, Path(tmp))
@@ -142,14 +189,15 @@ def main() -> int:
 
     ensure_memory_import(memory_file, memory_import_line(home, install_dir))
     ensure_slash_command(command_file, install_dir)
+    ensure_hook_runner(runner_file, install_dir)
 
     if not args.no_hook:
-        checker = install_dir / "scripts" / "health_check.py"
-        ensure_user_prompt_hook(settings_file, quoted_command(Path(sys.executable), checker))
+        ensure_user_prompt_hook(settings_file, quoted_command(Path(sys.executable), runner_file))
 
     print(f"Installed health-skill to {install_dir}")
     print(f"Updated Claude memory: {memory_file}")
     print(f"Updated Claude slash command: {command_file}")
+    print(f"Updated Claude hook runner: {runner_file}")
     if args.no_hook:
         print("Skipped Claude hook setup.")
     else:

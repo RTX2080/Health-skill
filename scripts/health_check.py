@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import tempfile
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +14,8 @@ from typing import Optional
 
 
 DEFAULT_SESSION_MINUTES = 60
-DEFAULT_STATE_FILE = "~/.codex/health-skill/session_state.json"
+DEFAULT_STATE_DIR = "codex-health-skill"
+DEFAULT_STATE_FILE = "session_state.json"
 
 
 @dataclass
@@ -63,7 +65,10 @@ def determine_session_level(
 
 
 def default_state_file() -> Path:
-    return Path(os.environ.get("HEALTH_SKILL_STATE_FILE", DEFAULT_STATE_FILE)).expanduser()
+    override = os.environ.get("HEALTH_SKILL_STATE_FILE")
+    if override:
+        return Path(override).expanduser()
+    return Path(tempfile.gettempdir()) / DEFAULT_STATE_DIR / DEFAULT_STATE_FILE
 
 
 def read_session_start(state_file: Path, now: datetime) -> datetime:
@@ -146,7 +151,7 @@ def main() -> None:
     parser.add_argument(
         "--state-file",
         default=str(default_state_file()),
-        help="Path to session state JSON. Defaults to ~/.codex/health-skill/session_state.json.",
+        help="Path to session state JSON. Defaults to the system temp directory.",
     )
     parser.add_argument(
         "--session-minutes",

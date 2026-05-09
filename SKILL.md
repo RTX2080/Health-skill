@@ -12,7 +12,7 @@ Stay silent unless a reminder trigger is met. When no trigger is met, output not
 ## Lightweight Precheck
 
 1. Prefer the environment's current local time when it is already available.
-2. Run `scripts/health_check.py --quiet` when checking reminder state. The script stores the first work timestamp in `~/.codex/health-skill/session_state.json`.
+2. Run `scripts/health_check.py --quiet` when checking reminder state. The script stores the first work timestamp in the system temp directory by default; set `HEALTH_SKILL_STATE_FILE` to override it.
 3. If `now - session_started_at >= 60 minutes`, give one long-session reminder and let the script reset `session_started_at` to the current time.
 4. Load `references/reminder_templates.md` only after a reminder trigger is confirmed.
 

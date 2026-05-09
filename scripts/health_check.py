@@ -14,7 +14,7 @@ from typing import Optional
 
 
 DEFAULT_SESSION_MINUTES = 60
-DEFAULT_STATE_DIR = "codex-health-skill"
+DEFAULT_STATE_DIR = "health-skill"
 DEFAULT_STATE_FILE = "session_state.json"
 
 

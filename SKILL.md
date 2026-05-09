@@ -1,6 +1,6 @@
 ---
 name: health-skill
-description: Lightweight automatic wellness guard for Codex work sessions. Use implicitly for silent local-time/session prechecks, especially during coding or long AI-assisted work; do not mention health unless a late-night, long-session, rest, hydration, or urgent wellbeing trigger is actually met. Also use when the user explicitly asks for health-skill or non-medical wellbeing support.
+description: Lightweight automatic wellness guard for AI work sessions. Use implicitly for silent local-time/session prechecks, especially during coding or long AI-assisted work; do not mention health unless a late-night, long-session, rest, hydration, or urgent wellbeing trigger is actually met. Also use when the user explicitly asks for health-skill or non-medical wellbeing support.
 ---
 
 # Health Skill

@@ -19,7 +19,7 @@ This is not medical diagnosis. For emergency-like symptoms, advise urgent medica
 Install or update this project for Claude Code with:
 
 ```bash
-python3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/RTX2080/Health-skill/main/scripts/install_claude.py').read())"
+python3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/RTX2080/Health-skill/main/tools/install_claude_skill.py').read())"
 ```
 
 After installation, `/health-skill` activates the skill.

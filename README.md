@@ -1,13 +1,13 @@
-# health-skill 安装说明
+# health-skill
 
 本项目整个 repo 就是一个 skill 目录。目标效果是：安装后，AI 在每次工作请求前静默检查健康提醒条件；没触发时完全不说话，触发时只短提醒一句。
 
-## Claude Code（推荐）
+## Claude Code
 
 一行安装或更新：
 
 ```bash
-python3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/RTX2080/Health-skill/main/scripts/install_claude.py').read())"
+python3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/RTX2080/Health-skill/main/tools/install_claude_skill.py').read())"
 ```
 
 安装器会自动：
@@ -56,12 +56,14 @@ python3 ~/.claude/skills/health-skill/scripts/health_check.py --now 2026-05-09T2
 health-skill/
 ├── SKILL.md
 ├── CLAUDE.md
-├── INSTALL.md
+├── README.md
 ├── agents/
 │   └── openai.yaml
 ├── references/
 │   └── reminder_templates.md
-└── scripts/
-    ├── health_check.py
-    └── install_claude.py
+├── scripts/
+│   └── health_check.py
+└── tools/
+    ├── install_claude_skill.py
+    └── install_codex_skill.py
 ```

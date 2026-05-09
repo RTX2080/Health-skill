@@ -8,6 +8,7 @@ description: Lightweight automatic wellness guard for AI work sessions. Use impl
 ## Core Rule
 
 Stay silent unless a reminder trigger is met. When no trigger is met, output nothing about health and continue the user's task normally.
+Do not announce the precheck in status, commentary, or progress updates. Never write messages like "I will run a health check" or "I am doing a silent precheck."
 
 ## Lightweight Precheck
 

@@ -9,6 +9,7 @@ python3 scripts/health_check.py --quiet
 ```
 
 If the command prints nothing, do not mention health and continue the user's task normally.
+Do not announce that the health check is running.
 
 If the command prints JSON with `should_remind: true`, give a brief 1-2 sentence reminder and immediately continue the user's main task. Prefer Chinese when the user is speaking Chinese.
 

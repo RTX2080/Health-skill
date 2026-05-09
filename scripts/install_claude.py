@@ -23,6 +23,10 @@ def claude_home() -> Path:
     return Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude")).expanduser()
 
 
+def default_install_dir() -> Path:
+    return claude_home() / "skills" / "health-skill"
+
+
 def download_repo(ref: str, tmp_dir: Path) -> Path:
     zip_url = f"https://codeload.github.com/{OWNER}/{REPO}/zip/{ref}"
     zip_path = tmp_dir / "repo.zip"
@@ -43,9 +47,8 @@ def copy_skill(repo_root: Path, install_dir: Path) -> None:
 
 
 def memory_import_line(home: Path, install_dir: Path) -> str:
-    default_install_dir = home / "health-skill"
-    if install_dir.expanduser() == default_install_dir.expanduser():
-        return "@~/.claude/health-skill/CLAUDE.md"
+    if install_dir.expanduser() == default_install_dir().expanduser():
+        return "@~/.claude/skills/health-skill/CLAUDE.md"
     return f"@{install_dir.expanduser().resolve() / 'CLAUDE.md'}"
 
 
@@ -84,13 +87,38 @@ def ensure_user_prompt_hook(settings_file: Path, command: str) -> None:
     settings_file.write_text(json.dumps(settings, indent=2) + "\n")
 
 
+def ensure_slash_command(command_file: Path, install_dir: Path) -> None:
+    command_file.parent.mkdir(parents=True, exist_ok=True)
+    skill_path = install_dir.expanduser().resolve() / "SKILL.md"
+    command_file.write_text(
+        "\n".join(
+            [
+                "---",
+                "description: Activate health-skill wellness reminders",
+                "---",
+                "",
+                f"Use @{skill_path}.",
+                "",
+                "The user explicitly invoked health-skill without another task.",
+                "Reply only with the activation sentence in the user's language.",
+                "",
+            ]
+        )
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install health-skill for Claude Code.")
     parser.add_argument("--ref", default=DEFAULT_REF, help="Git ref to install. Defaults to main.")
     parser.add_argument(
         "--install-dir",
-        default=str(claude_home() / "health-skill"),
-        help="Where to install the skill. Defaults to ~/.claude/health-skill.",
+        default=str(default_install_dir()),
+        help="Where to install the skill. Defaults to ~/.claude/skills/health-skill.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Replace an existing installation. Currently accepted for compatibility.",
     )
     parser.add_argument(
         "--no-hook",
@@ -106,12 +134,14 @@ def main() -> int:
     install_dir = Path(args.install_dir).expanduser()
     memory_file = home / "CLAUDE.md"
     settings_file = home / "settings.json"
+    command_file = home / "commands" / "health-skill.md"
 
     with tempfile.TemporaryDirectory(prefix="health-skill-install-") as tmp:
         repo_root = download_repo(args.ref, Path(tmp))
         copy_skill(repo_root, install_dir)
 
     ensure_memory_import(memory_file, memory_import_line(home, install_dir))
+    ensure_slash_command(command_file, install_dir)
 
     if not args.no_hook:
         checker = install_dir / "scripts" / "health_check.py"
@@ -119,6 +149,7 @@ def main() -> int:
 
     print(f"Installed health-skill to {install_dir}")
     print(f"Updated Claude memory: {memory_file}")
+    print(f"Updated Claude slash command: {command_file}")
     if args.no_hook:
         print("Skipped Claude hook setup.")
     else:

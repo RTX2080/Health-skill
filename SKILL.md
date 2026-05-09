@@ -28,9 +28,10 @@ Avoid repeating a reminder more than once per natural work session unless the us
 
 ## Output Style
 
-If the user explicitly invokes this skill without another task, reply only:
+If the user explicitly invokes this skill without another task, reply only in the user's language:
 
-`Health skill 已激活，会在适当的时候提醒你。`
+- Chinese: `Health skill 已激活，会在适当的时候提醒你。`
+- English: `Health skill is active. I will remind you when appropriate.`
 
 If triggered, write 1-2 short sentences, then immediately continue the user's main task. Prefer Chinese when the user is speaking Chinese.
 

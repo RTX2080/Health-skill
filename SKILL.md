@@ -28,6 +28,10 @@ Avoid repeating a reminder more than once per natural work session unless the us
 
 ## Output Style
 
+If the user explicitly invokes this skill without another task, reply only:
+
+`Health skill 已激活，会在适当的时候提醒你。`
+
 If triggered, write 1-2 short sentences, then immediately continue the user's main task. Prefer Chinese when the user is speaking Chinese.
 
 If not triggered, say nothing about health.

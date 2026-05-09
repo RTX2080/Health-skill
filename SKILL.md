@@ -1,24 +1,25 @@
 ---
 name: health-skill
-description: Gentle, time-aware wellness reminders for AI work sessions. Use when Codex should check local time, notice late-night work, remind the user to drink water, move, rest their eyes, or wrap up without interrupting the user's main task; also use when the user explicitly asks for health-skill, late-night reminders, long-session reminders, hydration reminders, movement breaks, sleep hygiene nudges, or non-medical wellbeing support during AI-assisted work.
+description: Automatic, non-disruptive wellness checks for Codex work sessions. Use implicitly at the start of every user request during AI-assisted work to silently check local time and known session context; only speak up when late-night, long-session, hydration, movement-break, eye-rest, sleep-hygiene, or urgent wellbeing conditions are met, then immediately continue the user's main task. Also use when the user explicitly asks for health-skill or non-medical wellbeing support.
 ---
 
 # Health Skill
 
 ## Core Rule
 
-Help the user stay healthy while continuing the requested task. Keep reminders brief, kind, and non-disruptive. Never turn the response into a lecture unless the user asks for detail.
+Help the user stay healthy while continuing the requested task. Run the health check automatically and silently at the start of each user request in an AI work session. Keep reminders brief, kind, and non-disruptive. Never turn the response into a lecture unless the user asks for detail.
 
 ## Quick Workflow
 
-1. Check the current local time before giving a health reminder. Prefer running `scripts/health_check.py`; if tools are unavailable, use the environment's current date/time.
+1. At the start of each user request, check the current local time. Prefer running `scripts/health_check.py`; if tools are unavailable, use the environment's current date/time.
 2. Pass known session context to the script when reliable data exists:
    - `--elapsed-minutes`: elapsed active conversation/work-session time.
    - `--unfocused-minutes`: time away from the app, but only if a reliable app/browser signal is available.
    - `--session-start`: ISO timestamp, when elapsed time is easier to compute from a start time.
 3. Do not invent focus state. If focus-away time is unavailable, omit it and use a softer long-session reminder only when the conversation itself has clearly lasted about an hour.
-4. If a reminder is needed, write 1-2 short sentences and immediately continue the user's task.
-5. If the user asks not to receive health reminders, respect that preference for the current task unless there is an urgent safety concern.
+4. If no reminder is needed, say nothing about health and continue the user's task normally.
+5. If a reminder is needed, write 1-2 short sentences and immediately continue the user's task.
+6. If the user asks not to receive health reminders, respect that preference for the current task unless there is an urgent safety concern.
 
 ## Reminder Triggers
 

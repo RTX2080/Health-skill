@@ -15,3 +15,9 @@ If the command prints JSON with `should_remind: true`, give a brief 1-2 sentence
 The script stores session state in the system temp directory by default. To choose a custom location, set `HEALTH_SKILL_STATE_FILE` to an absolute path.
 
 This is not medical diagnosis. For emergency-like symptoms, advise urgent medical help.
+
+Install or update this project for Claude Code with:
+
+```bash
+python3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/RTX2080/Health-skill/main/scripts/install_claude.py').read())"
+```
